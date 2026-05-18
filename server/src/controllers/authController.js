@@ -10,7 +10,7 @@ const SALT_ROUNDS = 12;
 const register = async (req, res) => {
   const result = registerSchema.safeParse(req.body);
   if (!result.success) {
-    return res.status(400).json({ error: result.error.errors[0].message });
+    return res.status(400).json({ error: result.error.issues[0].message });
   }
 
   const { email, password, name } = result.data;
@@ -31,7 +31,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const result = loginSchema.safeParse(req.body);
   if (!result.success) {
-    return res.status(400).json({ error: result.error.errors[0].message });
+    return res.status(400).json({ error: result.error.issues[0].message });
   }
 
   const { email, password } = result.data;
