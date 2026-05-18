@@ -1,5 +1,27 @@
-const express = require('express');
+// auth API endpoints
 
+const express = require('express');
+const passport = require('passport');
 const router = express.Router();
+const { register, login, logout, me } = require('../controllers/authController');
+const verifyToken = require('../middleware/verifyToken');
+
+router.post('/register', register);
+router.post('/login', login);
+router.post('/logout', logout);
+router.get('/me', verifyToken, me);
+
+// Google OAuth
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed`, session: false }),
+  (req, res) => {
+    const { signToken } = require('../utils/jwt');
+    const token = signToken({ userId: req.user.id });
+    res.redirect(`${process.env.FRONTEND_URL}/oauth-callback?token=${token}`);
+  }
+);
 
 module.exports = router;
