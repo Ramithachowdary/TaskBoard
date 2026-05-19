@@ -10,17 +10,21 @@ const generateOtp = () => {
 
 /**
  * Hashes the OTP with SHA-256.
- * We use SHA-256 (not bcrypt) because OTPs are short-lived (10 min),
- * single-use, and protected by expiry + rate limiting.
- * bcrypt's slowness adds no meaningful security here.
+ *
+ * Why SHA-256 and not bcrypt?
+ * - OTPs are short-lived (10 min) and single-use
+ * - They're already protected by expiry + rate limiting + one-use
+ * - bcrypt's slowness provides no meaningful extra security here
+ * - SHA-256 + timingSafeEqual is the correct pattern for OTPs
  */
 const hashOtp = (otp) => {
   return crypto.createHash('sha256').update(otp).digest('hex');
 };
 
 /**
- * Compares a raw OTP against a stored hash using timing-safe comparison
- * to prevent timing attacks.
+ * Timing-safe comparison of raw OTP against stored hash.
+ * Prevents timing attacks where an attacker could guess characters
+ * by measuring how long the comparison takes.
  */
 const compareOtp = (rawOtp, storedHash) => {
   const rawHash = hashOtp(rawOtp);
@@ -30,7 +34,7 @@ const compareOtp = (rawOtp, storedHash) => {
       Buffer.from(storedHash, 'hex')
     );
   } catch {
-    // buffers of different length = definitely not equal
+    // timingSafeEqual throws if buffers have different lengths
     return false;
   }
 };
