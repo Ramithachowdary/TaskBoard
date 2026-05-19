@@ -13,4 +13,16 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-module.exports = { registerSchema, loginSchema };
+const verifyOtpSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  otp: z
+    .string()
+    .length(6, 'Code must be exactly 6 digits')
+    .regex(/^\d{6}$/, 'Code must contain only digits'),
+});
+
+const resendOtpSchema = z.object({
+  email: z.string().email('Invalid email format'),
+});
+
+module.exports = { registerSchema, loginSchema, verifyOtpSchema, resendOtpSchema };
