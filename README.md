@@ -1,6 +1,6 @@
 # TaskBoard
 
-**TaskBoard** is a full-stack personal task manager built as a take-home exercise for the Gatherly Engineering team. Users sign in with Google or email/password, manage a private task list with priorities and due dates, and stay authenticated across sessions — all backed by a real PostgreSQL database and secured with JWT.
+**TaskBoard** is a full-stack personal task manager built as a take-home exercise for the Gatherly Engineering team. Users sign in with Google or email/password, manage a private task list with priorities and due dates, and stay authenticated across sessions, all backed by a real PostgreSQL database and secured with JWT.
 
 > Built by **Ramithachowdary** · Submitted May 2026
 
@@ -8,7 +8,7 @@
 
 ## Live Demo
 
-Deployment: https://taskboard-personal-task-manager.vercel.app/dashboard
+Deployed URL : [Visit TaskBoard](https://taskboard-personal-task-manager.vercel.app/dashboard)
 
 > **Note:** Google OAuth callbacks are still served from the original Render deployment. OTP email delivery now works via the Vercel backend.
 
@@ -41,8 +41,8 @@ Deployment: https://taskboard-personal-task-manager.vercel.app/dashboard
 | Runtime | Node.js v18+ |
 | API Server | Express.js 4 |
 | Database | PostgreSQL via Supabase (`pg`) |
-| Auth — OAuth | Passport.js + `passport-google-oauth20` |
-| Auth — Credentials | bcrypt (cost factor 12) |
+| Auth OAuth | Passport.js + `passport-google-oauth20` |
+| Auth Credentials | bcrypt (cost factor 12) |
 | Tokens | JWT (`jsonwebtoken`) — stateless |
 | Validation | Zod |
 | Email / OTP | Nodemailer via Gmail SMTP |
@@ -83,7 +83,7 @@ TaskBoard/
 │   │   │   ├── OAuthCallbackPage.jsx
 │   │   │   └── DashboardPage.jsx
 │   │   └── App.jsx
-│   ├── vercel.json                   # SPA rewrite rules
+│   ├── vercel.json                   
 │   └── vite.config.js
 │
 └── server/
@@ -115,6 +115,7 @@ TaskBoard/
 ├── tests/
 │   ├── auth.test.js              # 20 auth integration tests
 │   └── tasks.test.js             # 5 task API integration tests
+│   └── vercel.json
 └── package.json
 ---
 ```
@@ -204,8 +205,6 @@ CREATE TABLE tasks (
 4. Add to **Authorized redirect URIs**: `http://localhost:5000/api/auth/google/callback`
 5. Copy **Client ID** and **Client Secret** into `server/.env`.
 
-> While the app is in "Testing" mode, only explicitly added Google accounts can sign in. Publish the consent screen for open access.
-
 ---
 
 ## Environment Variables
@@ -229,7 +228,6 @@ FRONTEND_URL=http://localhost:5173
 CORS_ORIGIN=http://localhost:5173
 
 # Gmail SMTP — use a Gmail App Password, not your regular password
-# https://support.google.com/accounts/answer/185833
 GMAIL_USER=your.gmail@gmail.com
 GMAIL_APP_PASSWORD=16_char_app_password
 EMAIL_FROM=TaskBoard <your.gmail@gmail.com>
@@ -276,7 +274,6 @@ VITE_API_URL=http://localhost:5000/api
 
 | Path | Component | Guard |
 |------|-----------|-------|
-| `/` | → `/dashboard` | — |
 | `/login` | `LoginPage` | Public |
 | `/register` | `RegisterPage` | Public |
 | `/verify-otp` | `VerifyOtpPage` | Public |
@@ -297,7 +294,7 @@ npm run test
 | `auth.test.js` | 20 | Register, login, OTP verify/resend, edge cases |
 | `tasks.test.js` | 5 | Auth protection, ownership, CRUD |
 
-All services are mocked — no real DB or email server needed.
+All services are mocked, no real DB or email server needed.
 
 ---
 
@@ -305,7 +302,7 @@ All services are mocked — no real DB or email server needed.
 
 ### MVC + Service Layer
 
-Routes → Controllers → Services → DB. Controllers handle only HTTP (parse, validate, respond). All DB logic lives in `authService` and `taskService`. This made the test suite clean — mocking the service layer with `jest.mock()` covers every HTTP branch without touching the database.
+Routes → Controllers → Services → DB. Controllers handle only HTTP (parse, validate, respond). All DB logic lives in `authService` and `taskService`. This made the test suite clean, mocking the service layer with `jest.mock()` covers every HTTP branch without touching the database.
 
 ### Stateless JWT
 
@@ -313,7 +310,7 @@ JWTs are issued on login/OTP-verify/OAuth-callback and stored in `localStorage`.
 
 ### Email Verification via OTP
 
-Registration creates an `is_verified = FALSE` user. A 6-digit OTP is generated via `crypto.randomInt` (CSPRNG), SHA-256 hashed, and stored — the plaintext is never persisted. `crypto.timingSafeEqual` is used for comparison. If the email send fails, the user record is rolled back to prevent orphaned accounts.
+Registration creates an `is_verified = FALSE` user. A 6-digit OTP is generated via `crypto.randomInt` (CSPRNG), SHA-256 hashed, and stored, the plaintext is never persisted. `crypto.timingSafeEqual` is used for comparison. If the email send fails, the user record is rolled back to prevent orphaned accounts.
 
 ### Google OAuth Bypasses OTP
 
@@ -321,7 +318,7 @@ Google pre-verifies email ownership, so OAuth users are immediately set to `is_v
 
 ### Zod Validation
 
-Every POST/PATCH body is parsed through a Zod schema before any DB call. Invalid requests return `400` with the first human-readable issue message — no leaky stack traces.
+Every POST/PATCH body is parsed through a Zod schema before any DB call. Invalid requests return `400` with the first human-readable issue message.
 
 ### Task Ownership
 
@@ -333,7 +330,7 @@ Every mutating task endpoint fetches the task first and checks `task.user_id ===
 
 ### JWT in `localStorage` vs HttpOnly Cookies
 
-`localStorage` is simpler and works cleanly across the split Vercel/Render deployment without CORS cookie headaches. The trade-off is XSS exposure — a malicious script could read the token. In production, `HttpOnly SameSite=Strict` cookies are the right call.
+`localStorage` is simpler and works cleanly across the split Vercel/Render deployment without CORS cookie headaches. The trade-off is XSS exposure, a malicious script could read the token. In production, `HttpOnly SameSite=Strict` cookies are the right call.
 
 ### No Refresh Tokens
 
@@ -341,11 +338,11 @@ Every mutating task endpoint fetches the task first and checks `task.user_id ===
 
 ### SHA-256 for OTPs, not bcrypt
 
-OTPs are short-lived (10 min) and single-use, so bcrypt's slow hash is unnecessary overhead. SHA-256 is fine here — the security comes from expiry and one-time use, not slow hashing alone.
+OTPs are short-lived (10 min) and single-use, so bcrypt's slow hash is unnecessary overhead. SHA-256 is fine here but the security comes from expiry and one-time use, not slow hashing alone.
 
 ### SMTP on Render Free Tier
 
-Render's free tier blocks outbound SMTP ports. The backend was moved to Vercel where SMTP works. If you redeploy to Render free, OTP emails will fail and registration rolls back to prevent orphaned accounts. The long-term fix is switching to an HTTP-based mail provider (Resend, SendGrid) on port 443.
+Render's free tier blocks outbound SMTP ports. The backend was moved to Vercel where SMTP works. If redeployed to Render free then the OTP emails will fail and registration rolls back to prevent orphaned accounts. The long-term fix is switching to an HTTP-based mail provider (Resend, SendGrid) on port 443.
 
 ### No Rate Limiting
 
@@ -353,31 +350,31 @@ Auth endpoints (login, register, OTP) have no brute-force protection beyond the 
 
 ### No Token Revocation
 
-JWT logout is client-side only — the token is deleted from `localStorage` but remains technically valid server-side until expiry. A token blacklist or short expiry with refresh tokens would fix this.
+JWT logout is client-side only, the token is deleted from `localStorage` but remains technically valid server-side until expiry. A token blacklist or short expiry with refresh tokens would fix this.
 
 ---
 
 ## Challenges Faced
 
-- **Zod v4 migration** — controllers were crashing silently because Zod changed `.error.error[0]` to `.error.issues[0]`. Spent time suspecting `.env` issues before finding the one-line fix.
-- **React Router + Vercel 404** — SPA routes returned 404 on hard refresh. Fixed by adding rewrite rules in `vercel.json`.
-- **CORS case-sensitivity** — the `CORS_ORIGIN` env var had a trailing slash mismatch with the frontend URL. Took a while to spot.
-- **Google OAuth redirect URI** — mismatches between Google Console, `.env`, and deployment URL caused OAuth failures across environments.
-- **Render SMTP block** — switched from Resend (domain restriction on free tier) to Nodemailer + Gmail SMTP. Worked locally. Discovered Render free blocks SMTP only after deployment. Moved backend to Vercel.
-- **OTP email provider confusion** — Resend requires a custom domain for arbitrary recipients on free tier. Nodemailer with Gmail App Passwords was the working alternative.
+- **Zod v4 migration** = controllers were crashing silently because Zod changed `.error.error[0]` to `.error.issues[0]`. Spent time suspecting `.env` issues before finding the one-line fix.
+- **React Router + Vercel 404** = SPA routes returned 404 on hard refresh. Fixed by adding rewrite rules in `vercel.json`.
+- **CORS case-sensitivity** = the `CORS_ORIGIN` env var had a trailing slash mismatch with the frontend URL. Took a while to spot.
+- **Google OAuth redirect URI** = mismatches between Google Console, `.env`, and deployment URL caused OAuth failures across environments.
+- **Render SMTP block** = switched from Resend (domain restriction on free tier) to Nodemailer + Gmail SMTP. Worked locally. Discovered Render free blocks SMTP only after deployment. Moved backend to Vercel.
+- **OTP email provider confusion** = Resend requires a custom domain for arbitrary recipients on free tier,such that only account holders can get otp. Nodemailer with Gmail App Passwords was the working alternative.
 
 ---
 
 ## What I Would Improve Given More Time
 
-1. **HttpOnly cookie JWT** — eliminates the XSS vector from `localStorage`.
-2. **Refresh token rotation** — short-lived access tokens + rotating refresh tokens.
-3. **HTTP email API** — replace Gmail SMTP with Resend or Mailgun HTTP API to avoid SMTP port restrictions on any host.
-4. **Rate limiting** — `express-rate-limit` on all auth endpoints.
-5. **Forgot password flow** — separate reset-password route with its own OTP or signed token.
-6. **Task history / activity log** — track created, updated, and completed timestamps.
-7. **Calendar view** — group tasks by due date with a proper calendar UI.
-8. **Pagination & filtering** — server-side `WHERE` clauses for status, priority, and date ranges.
+1. **HttpOnly cookie JWT** = eliminates the XSS vector from `localStorage`.
+2. **Refresh token rotation** = short-lived access tokens + rotating refresh tokens.
+3. **HTTP email API** = replace Gmail SMTP with Resend or Mailgun HTTP API to avoid SMTP port restrictions on any host, with a domain availability.
+4. **Rate limiting** = `express-rate-limit` on all auth endpoints.
+5. **Forgot password flow** = separate reset-password route with its own OTP or signed token.
+6. **Task history / activity log** = track created, updated, and completed timestamps.
+7. **Calendar view** = group tasks by due date with a proper calendar UI.
+8. **Pagination & filtering** = server-side `WHERE` clauses for status, priority, and date ranges.
 ---
 
 ## Bonus Features Implemented
@@ -389,7 +386,7 @@ JWT logout is client-side only — the token is deleted from `localStorage` but 
 | Task priority levels (Low / Medium / High) | ✅ |
 | 25 integration tests (Jest + Supertest) | ✅ |
 | Deployed frontend (Vercel) | ✅ |
-| Deployed backend (Vercel) | ✅ |
+| Deployed backend (Vercel/Render) | ✅ |
 
 ---
 
