@@ -3,14 +3,15 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
-const { register, login, logout, me } = require('../controllers/authController');
+const { register, login, logout, me, verifyOtp, resendOtp } = require('../controllers/authController');
 const verifyToken = require('../middleware/verifyToken');
 
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', logout);
 router.get('/me', verifyToken, me);
-
+router.post('/verify-otp', verifyOtp);
+router.post('/resend-otp', resendOtp);
 // Google OAuth
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 
