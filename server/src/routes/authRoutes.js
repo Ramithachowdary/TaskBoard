@@ -1,23 +1,39 @@
-// auth API endpoints
-
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
-const { register, login, logout, me, verifyOtp, resendOtp } = require('../controllers/authController');
 const verifyToken = require('../middleware/verifyToken');
 
+const {
+  register,
+  login,
+  logout,
+  me,
+  verifyOtp,    // NEW
+  resendOtp,    // NEW
+} = require('../controllers/authController');
+
+// ─── Email/password auth ──────────────────────────────────────────────────
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', logout);
 router.get('/me', verifyToken, me);
+
+// ─── OTP verification (NEW) ───────────────────────────────────────────────
 router.post('/verify-otp', verifyOtp);
 router.post('/resend-otp', resendOtp);
-// Google OAuth
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+
+// ─── Google OAuth (unchanged) ─────────────────────────────────────────────
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'], session: false })
+);
 
 router.get(
   '/google/callback',
-  passport.authenticate('google', { failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed`, session: false }),
+  passport.authenticate('google', {
+    failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed`,
+    session: false,
+  }),
   (req, res) => {
     const { signToken } = require('../utils/jwt');
     const token = signToken({ userId: req.user.id });

@@ -1,5 +1,3 @@
-// Validate user inputs
-
 const { z } = require('zod');
 
 const registerSchema = z.object({
@@ -13,6 +11,7 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+// NEW: validates verify-otp request body
 const verifyOtpSchema = z.object({
   email: z.string().email('Invalid email format'),
   otp: z
@@ -21,8 +20,14 @@ const verifyOtpSchema = z.object({
     .regex(/^\d{6}$/, 'Code must contain only digits'),
 });
 
+// NEW: validates resend-otp request body
 const resendOtpSchema = z.object({
   email: z.string().email('Invalid email format'),
 });
 
-module.exports = { registerSchema, loginSchema, verifyOtpSchema, resendOtpSchema };
+module.exports = {
+  registerSchema,
+  loginSchema,
+  verifyOtpSchema,
+  resendOtpSchema,
+};
