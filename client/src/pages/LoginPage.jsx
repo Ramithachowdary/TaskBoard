@@ -21,8 +21,17 @@ const LoginPage = () => {
       login(res.data.token, res.data.user);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
-    } finally {
+  const data = err.response?.data;
+
+  // Backend returns 403 + EMAIL_NOT_VERIFIED when user hasn't verified email
+  if (data?.code === 'EMAIL_NOT_VERIFIED') {
+    // Silently redirect to verify page with email prefilled
+    navigate('/verify-otp', { state: { email: form.email } });
+    return;
+  }
+
+  setError(data?.error || 'Login failed');
+} finally {
       setLoading(false);
     }
   };

@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
+import VerifyOtpPage from './pages/VerifyOtpPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
+          <Route path="/verify-otp" element={<VerifyOtpPage />} />
           <Route
             path="/dashboard"
             element={

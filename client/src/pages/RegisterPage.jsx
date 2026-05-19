@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { useAuth } from '../context/AuthContext';
 
 const RegisterPage = () => {
-  const { login } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
@@ -12,20 +10,20 @@ const RegisterPage = () => {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      const res = await api.post('/auth/register', form);
-      login(res.data.token, res.data.user);
-      navigate('/dashboard');
-    } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
+  try {
+    await api.post('/auth/register', form);
+    // Register no longer returns a token — redirect to OTP page
+    navigate('/verify-otp', { state: { email: form.email } });
+  } catch (err) {
+    setError(err.response?.data?.error || 'Registration failed');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div style={styles.page}>
