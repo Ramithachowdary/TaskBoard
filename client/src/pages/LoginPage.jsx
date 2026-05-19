@@ -23,9 +23,7 @@ const LoginPage = () => {
     } catch (err) {
   const data = err.response?.data;
 
-  // Backend returns 403 + EMAIL_NOT_VERIFIED when user hasn't verified email
   if (data?.code === 'EMAIL_NOT_VERIFIED') {
-    // Silently redirect to verify page with email prefilled
     navigate('/verify-otp', { state: { email: form.email } });
     return;
   }

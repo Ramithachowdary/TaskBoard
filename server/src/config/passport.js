@@ -17,18 +17,15 @@ passport.use(
         const googleId = profile.id;
         const name = profile.displayName;
 
-        // 1. Try to find by Google ID
         let user = await authService.getUserByGoogleId(googleId);
         if (user) return done(null, user);
 
-        // 2. Try to find by email (link accounts)
         user = await authService.getUserByEmail(email);
         if (user) {
           await authService.linkGoogleId(user.id, googleId);
           return done(null, user);
         }
 
-        // 3. Create new Google user
         user = await authService.createGoogleUser({ email, googleId, name });
         return done(null, user);
       } catch (err) {

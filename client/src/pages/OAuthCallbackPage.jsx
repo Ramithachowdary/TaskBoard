@@ -17,7 +17,6 @@ const OAuthCallbackPage = () => {
       return;
     }
 
-    // Store token temporarily to make the /me request
     localStorage.setItem('token', token);
 
     api.get('/auth/me')

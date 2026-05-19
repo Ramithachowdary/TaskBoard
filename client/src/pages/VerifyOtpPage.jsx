@@ -17,7 +17,6 @@ const VerifyOtpPage = () => {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN);
 
-  // Countdown timer
   useEffect(() => {
     if (cooldown <= 0) return;
     const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
@@ -67,7 +66,6 @@ const VerifyOtpPage = () => {
     }
   };
 
-  // Edge case: user opened this URL directly without email in navigate state
   if (!location.state?.email && !email) {
     return (
       <div style={styles.page}>

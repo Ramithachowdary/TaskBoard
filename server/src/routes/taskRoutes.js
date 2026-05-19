@@ -3,7 +3,6 @@ const router = express.Router();
 const verifyToken = require('../middleware/verifyToken');
 const { getTasks, createTask, updateTask, deleteTask } = require('../controllers/taskController');
 
-// ALL task routes require authentication
 router.use(verifyToken);
 
 router.get('/', getTasks);

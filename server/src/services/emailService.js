@@ -1,15 +1,5 @@
 const nodemailer = require('nodemailer');
 
-/**
- * Gmail SMTP transporter.
- *
- * Uses a Gmail App Password (not your real Gmail password).
- * Setup: Gmail → Security → 2-Step Verification → App passwords
- *
- * Why 'gmail' service shorthand?
- * Nodemailer knows Gmail's SMTP settings (smtp.gmail.com:587 with STARTTLS).
- * Using service: 'gmail' is cleaner than manually setting host/port/secure.
- */
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -18,10 +8,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-/**
- * Verifies the SMTP connection on startup.
- * Logs a warning if credentials are wrong — avoids silent failures.
- */
 transporter.verify((error) => {
   if (error) {
     console.warn('Gmail SMTP connection failed:', error.message);
@@ -31,17 +17,11 @@ transporter.verify((error) => {
   }
 });
 
-/**
- * Sends an OTP verification email.
- * @param {string} toEmail - recipient's email address
- * @param {string} otp - plaintext 6-digit OTP (never stored, only sent)
- */
 const sendOtpEmail = async (toEmail, otp) => {
   const mailOptions = {
     from: process.env.EMAIL_FROM || `TaskBoard <${process.env.GMAIL_USER}>`,
     to: toEmail,
     subject: 'Your TaskBoard verification code',
-    // Plain text fallback for email clients that don't render HTML
     text: `Your TaskBoard verification code is: ${otp}\n\nThis code expires in 10 minutes.\n\nIf you did not create a TaskBoard account, ignore this email.`,
     html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 420px; margin: 0 auto; padding: 2rem; background: #ffffff;">
@@ -68,8 +48,6 @@ const sendOtpEmail = async (toEmail, otp) => {
     await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error('Gmail send error:', error.message);
-    // Re-throw so the controller can handle the failure
-    // (e.g., rollback user creation)
     throw new Error('Failed to send verification email. Please try again.');
   }
 };

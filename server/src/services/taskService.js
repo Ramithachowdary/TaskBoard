@@ -24,7 +24,6 @@ const createTask = async ({ userId, title, description, priority, due_date }) =>
 };
 
 const updateTask = async (taskId, fields) => {
-  // Dynamically build SET clause from provided fields
   const allowed = ['title', 'description', 'completed', 'priority', 'due_date'];
   const updates = [];
   const values = [];

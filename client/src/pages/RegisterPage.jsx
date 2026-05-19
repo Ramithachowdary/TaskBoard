@@ -16,7 +16,6 @@ const handleSubmit = async (e) => {
   setLoading(true);
   try {
     await api.post('/auth/register', form);
-    // Register no longer returns a token — redirect to OTP page
     navigate('/verify-otp', { state: { email: form.email } });
   } catch (err) {
     setError(err.response?.data?.error || 'Registration failed');

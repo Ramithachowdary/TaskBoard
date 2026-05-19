@@ -8,21 +8,18 @@ const {
   login,
   logout,
   me,
-  verifyOtp,    // NEW
-  resendOtp,    // NEW
+  verifyOtp,    
+  resendOtp,    
 } = require('../controllers/authController');
 
-// ─── Email/password auth ──────────────────────────────────────────────────
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', logout);
 router.get('/me', verifyToken, me);
 
-// ─── OTP verification (NEW) ───────────────────────────────────────────────
 router.post('/verify-otp', verifyOtp);
 router.post('/resend-otp', resendOtp);
 
-// ─── Google OAuth (unchanged) ─────────────────────────────────────────────
 router.get(
   '/google',
   passport.authenticate('google', { scope: ['profile', 'email'], session: false })

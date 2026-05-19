@@ -14,19 +14,10 @@ const SALT_ROUNDS = 12;
 const OTP_EXPIRY_MINUTES = 10;
 const OTP_RESEND_COOLDOWN_SECONDS = 60;
 
-// ─── Register ─────────────────────────────────────────────────────────────
-/**
- * CHANGED from original:
- * - No longer returns a JWT on success
- * - Creates user as unverified
- * - Generates + sends OTP
- * - If email sending fails, deletes the user (rollback/cleanup)
- * - Returns 201 with message + email only
- */
 const register = async (req, res) => {
   const result = registerSchema.safeParse(req.body);
   if (!result.success) {
-    return res.status(400).json({ error: result.error.errors[0].message });
+    return res.status(400).json({ error: result.error.issues[0].message });
   }
 
   const { email, password, name } = result.data;
@@ -55,13 +46,10 @@ const register = async (req, res) => {
 
   // Store OTP in DB
   await authService.createOtp(user.id, codeHash, expiresAt);
-
-  // Attempt to send email — if it fails, clean up the user to avoid orphaned records
+// Attempt to send email — if it fails, clean up the user to avoid orphaned records
   try {
     await sendOtpEmail(normalizedEmail, otp);
   } catch (emailError) {
-    // Rollback: delete the user so they can try registering again
-    // This prevents a state where the user exists but can never receive their OTP
     await authService.deleteUserById(user.id);
     console.error('Registration rollback triggered due to email failure:', emailError.message);
     return res.status(503).json({
@@ -76,17 +64,10 @@ const register = async (req, res) => {
   });
 };
 
-// ─── Login ────────────────────────────────────────────────────────────────
-/**
- * CHANGED from original:
- * - Blocks login if user's email is not verified
- * - Returns 403 with machine-readable code: EMAIL_NOT_VERIFIED
- * - Frontend uses this code to redirect to /verify-otp
- */
 const login = async (req, res) => {
   const result = loginSchema.safeParse(req.body);
   if (!result.success) {
-    return res.status(400).json({ error: result.error.errors[0].message });
+    return res.status(400).json({ error: result.error.issues[0].message });
   }
 
   const { email, password } = result.data;
@@ -94,8 +75,6 @@ const login = async (req, res) => {
 
   const user = await authService.getUserByEmail(normalizedEmail);
   if (!user) {
-    // Same message for "user not found" and "wrong password"
-    // Prevents user enumeration attacks
     return res.status(401).json({ error: 'Invalid email or password' });
   }
 
@@ -120,30 +99,20 @@ const login = async (req, res) => {
   });
 };
 
-// ─── Logout ───────────────────────────────────────────────────────────────
-// UNCHANGED — stateless JWT, client removes token
 const logout = async (req, res) => {
   return res.status(200).json({ message: 'Logged out successfully' });
 };
 
-// ─── Me ───────────────────────────────────────────────────────────────────
-// UNCHANGED
 const me = async (req, res) => {
   const user = await authService.getUserById(req.user.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
   return res.status(200).json(user);
 };
 
-// ─── Verify OTP ───────────────────────────────────────────────────────────
-/**
- * NEW endpoint.
- * Validates submitted OTP against stored hash.
- * On success: marks OTP as used, marks user as verified, returns JWT.
- */
 const verifyOtp = async (req, res) => {
   const result = verifyOtpSchema.safeParse(req.body);
   if (!result.success) {
-    return res.status(400).json({ error: result.error.errors[0].message });
+    return res.status(400).json({ error: result.error.issues[0].message });
   }
 
   const { email, otp } = result.data;
@@ -192,17 +161,10 @@ const verifyOtp = async (req, res) => {
   });
 };
 
-// ─── Resend OTP ───────────────────────────────────────────────────────────
-/**
- * NEW endpoint.
- * Generates and sends a fresh OTP.
- * Rate-limited: one resend per 60 seconds per user.
- * Returns generic message for unknown emails (prevents email enumeration).
- */
 const resendOtp = async (req, res) => {
   const result = resendOtpSchema.safeParse(req.body);
   if (!result.success) {
-    return res.status(400).json({ error: result.error.errors[0].message });
+    return res.status(400).json({ error: result.error.issues[0].message });
   }
 
   const { email } = result.data;
