@@ -371,7 +371,7 @@ JWT logout is client-side only, the token is deleted from `localStorage` but rem
 2. **Refresh token rotation** = short-lived access tokens + rotating refresh tokens.
 3. **HTTP email API** = replace Gmail SMTP with Resend or Mailgun HTTP API to avoid SMTP port restrictions on any host, with a domain availability.
 4. **Rate limiting** = `express-rate-limit` on all auth endpoints.
-5. **Forgot password flow** = separate reset-password route with its own OTP or signed token.
+5. **Forgot password flow** = separate reset-password route with its own OTP or signed token,constraints for setting a strong password.
 6. **Task history / activity log** = track created, updated, and completed timestamps.
 7. **Calendar view** = group tasks by due date with a proper calendar UI.
 8. **Pagination & filtering** = server-side `WHERE` clauses for status, priority, and date ranges.
