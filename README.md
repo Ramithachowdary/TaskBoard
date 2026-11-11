@@ -1,9 +1,5 @@
 # TaskBoard
 
-**TaskBoard** is a full-stack personal task manager built as a take-home exercise for the Gatherly Engineering team. Users sign in with Google or email/password, manage a private task list with priorities and due dates, and stay authenticated across sessions, all backed by a real PostgreSQL database and secured with JWT.
-
-> Built by **Ramithachowdary** · Submitted May 2026
-
 ---
 
 ## Live Demo
